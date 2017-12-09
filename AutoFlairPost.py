@@ -5,6 +5,7 @@ import configobj
 import logging
 import os
 import app.redditAccount
+import app.model
 
 
 if __name__ == '__main__':
@@ -37,16 +38,27 @@ if __name__ == '__main__':
     #add handlers to logger
     logger.addHandler(file_handler)
     logger.addHandler(console_stream)
-    logger.info('Logger Initiated')
+    logger.info('Libraries loaded, logger initiated')
     
     #Get/setup reddit account
     redditAccount = app.redditAccount.RedditAccount(config, logger)
     
-    #if needed, perform ETL of reddit data
-    if os.path.isdir(config['Reddit.Subreddit']):
-        #check for saved model and run tagger
-        pass
-    else:
+    #create subdirectory for subreddit specific data and models
+    if not os.path.isdir(config['Reddit.Subreddit']):
         os.mkdir(config['Reddit.Subreddit'])
-        logger.info('No saved models detected, running ETL (extract, transform, load) of Reddit data')
+        
+    #if needed, perform ETL of reddit data
+    if not os.path.isfile(config['Reddit.Subreddit']+"/RedditData.json") or not os.path.isfile(config['Reddit.Subreddit']+"/RedditFlair.json"):
+        logger.info('No saved reddit data detected, running extract and transform of Reddit data')
         redditAccount.extractData()
+    
+    #if needed, train a new model
+    if config['Model.SavedModelLocation'] == '':
+        logger.info('No saved model detected, creating a new one...')
+        model = app.model.Model(config, logger)
+    else:
+        logger.info('Loading saved model...')
+        model = app.model.Model(config, logger, modelLocation=config['Model.SavedModelLocation'])
+        
+    #Start tagging posts!
+    redditAccount.monitorSubmissions(model)

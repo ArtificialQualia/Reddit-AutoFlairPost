@@ -1,5 +1,7 @@
 import praw
+import prawcore
 import json
+import datetime
 
 class RedditAccount(object):
     def __init__(self, config, logger, *args, **kwargs):
@@ -31,10 +33,7 @@ class RedditAccount(object):
         self.logger.info("RedditAccount first time setup complete.")
         
     def getFlairList(self):
-        flairList = []
-        for flair in self.subreddit.new().next().flair.choices():
-            flairList.append(flair['flair_text'])
-        return flairList
+        return self.subreddit.new().next().flair.choices()
     
     def extractData(self):
         if self.config['Reddit.data.NumberOfPostsToExtract'] == '':
@@ -47,10 +46,11 @@ class RedditAccount(object):
         
         self.logger.info("Getting the posts from Reddit, depending on how many posts you specified this may take a few minutes...")
         flairList = self.getFlairList()
+        flairText = [x['flair_text'] for x in flairList]
         submissionIterator = self.subreddit.submissions()
         outputData = []
         for post in submissionIterator:
-            if post.link_flair_text not in flairList:
+            if post.link_flair_text not in flairText:
                 self.logger.warning('No or non-standard flair on post, ignoring post ' + post.id)
                 continue
             try:
@@ -63,6 +63,29 @@ class RedditAccount(object):
                 continue
             if len(outputData) >= self.config['Reddit.data.NumberOfPostsToExtract']:
                 break
-        self.logger.info("Finished getting Reddit posts.  Saving data to ./"+self.config['Reddit.Subreddit']+'/RedditData.json')
+            
+        self.logger.info("Finished getting Reddit posts.  Saving post data to ./"+self.config['Reddit.Subreddit']+'/RedditData.json')
         with open(self.config['Reddit.Subreddit']+'/RedditData.json', 'w') as f: 
             bytesWritten = json.dump(outputData, f)
+        self.logger.info("Saving flair data to ./"+self.config['Reddit.Subreddit']+'/RedditData.json')
+        with open(self.config['Reddit.Subreddit']+'/RedditFlair.json', 'w') as f: 
+            bytesWritten = json.dump(flairList, f)
+            
+    def monitorSubmissions(self, model):
+        self.logger.info("Grabbing the last 100 posts to your subreddit and tagging them, then monitoring your new queue for new posts.")
+        waitTime = self.config['Reddit.NewPost.WaitTime']
+        while True:
+            try:
+                for submission in self.subreddit.stream.submissions():
+                    if submission.link_flair_text == None:
+                        timeDifference = datetime.datetime.utcnow().timestamp() - submission.created_utc
+                        if timeDifference >= waitTime:
+                            model.predictAndTag(submission)
+                        else:
+                            time.sleep(int(waitTime - timeDifference))
+                            if submission.link_flair_text == None:
+                                model.predictAndTag(submission)
+            except prawcore.exceptions.ServerError as e:
+                self.logger.warning("Praw exception: " + str(e))
+                self.logger.info("Waiting 30s then trying again...")
+                time.sleep(30)
