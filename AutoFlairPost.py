@@ -10,7 +10,7 @@ import app.model
 
 if __name__ == '__main__':
     #cd to script directory
-    os.chdir(os.path.dirname(__file__))
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
     
     #load config
     config = configobj.ConfigObj('AutoFlairPost.config', unrepr=True)
