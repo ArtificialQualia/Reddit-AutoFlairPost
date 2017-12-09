@@ -26,11 +26,11 @@ Perform these steps on the server/desktop you plan to run AutoFlairPost on.
 3. Unzip to wherever you want.
 4. Open a terminal and cd to where you unzipped AutoFlairPost
 5. Run 'pip install -r requirements.txt'
-6. Run 'python AutoFlairPost.py' and AutoFlairPost will walk you through initialization and building your model.  After the model is built, AutoFlairPost will automatically start tagging your posts.
+6. Run 'python AutoFlairPost.py' and AutoFlairPost will walk you through initialization and building your model.  After the model is built, AutoFlairPost will automatically start tagging your posts.  
 After you have built and saved your model, you can simply run 'python AutoFlairPost.py' anytime to start tagging posts without having to build another model.
 
 # Advanced configuration
-If you want to mess with some of the Machine Learning settings that are used to build the model, edit AutoFlairPost.config before building your model.
+If you want to mess with some of the Machine Learning settings that are used to build the model, edit AutoFlairPost.config before building your model.  It has comments to help guide you.
 
 # Problems?
 If you encounter any problems with AutoFlairPost, please submit an issue here: https://github.com/ArtificialQualia/Reddit-AutoFlairPost/issues
