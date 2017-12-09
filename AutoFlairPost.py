@@ -1,18 +1,18 @@
 ###
 # Main file for AutoFlairPost
 ###
-import configparser
+import configobj
 import logging
 import os
+import app.redditAccount
+
 
 if __name__ == '__main__':
     #cd to script directory
     os.chdir(os.path.dirname(__file__))
     
     #load config
-    full_config = configparser.ConfigParser()
-    full_config.read('AutoFlairPost.config')
-    config = full_config['DEFAULT']
+    config = configobj.ConfigObj('AutoFlairPost.config', unrepr=True)
     
     #Grab logging level from config
     numeric_level = getattr(logging, config['LogLevel'].upper(), None)
@@ -38,3 +38,15 @@ if __name__ == '__main__':
     logger.addHandler(file_handler)
     logger.addHandler(console_stream)
     logger.info('Logger Initiated')
+    
+    #Get/setup reddit account
+    redditAccount = app.redditAccount.RedditAccount(config, logger)
+    
+    #if needed, perform ETL of reddit data
+    if os.path.isdir(config['Reddit.Subreddit']):
+        #check for saved model and run tagger
+        pass
+    else:
+        os.mkdir(config['Reddit.Subreddit'])
+        logger.info('No saved models detected, running ETL (extract, transform, load) of Reddit data')
+        redditAccount.extractData()
