@@ -59,6 +59,7 @@ if __name__ == '__main__':
     else:
         logger.info('Loading saved model...')
         model = app.model.Model(config, logger, modelLocation=config['Model.SavedModelLocation'])
+        logger.info('Model loaded')
         
     #Start tagging posts!
     redditAccount.monitorSubmissions(model)

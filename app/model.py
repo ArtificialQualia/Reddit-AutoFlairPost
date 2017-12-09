@@ -25,7 +25,7 @@ class Model(object):
             self.flairList = json.loads(f.read())
         if modelLocation == None:
             self.createModel()
-            file = self.config['Model.SavedModelLocation']
+            modelLocation = self.config['Model.SavedModelLocation']
             
         self.predict_fn = tf.contrib.predictor.from_saved_model(modelLocation, signature_def_key='predict')
         self.post_vocab = tf.contrib.learn.preprocessing.VocabularyProcessor.restore(modelLocation + '/post_vocabulary.vocab')
