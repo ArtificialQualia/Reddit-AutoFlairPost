@@ -86,7 +86,7 @@ class RedditAccount(object):
                             time.sleep(int(waitTime - timeDifference))
                             if submission.link_flair_text == None:
                                 model.predictAndTag(submission)
-            except prawcore.exceptions.ServerError as e:
+            except (prawcore.exceptions.ServerError, prawcore.exceptions.RequestException) as e:
                 self.logger.warning("Praw exception: " + str(e))
                 self.logger.info("Waiting 30s then trying again...")
                 time.sleep(30)
