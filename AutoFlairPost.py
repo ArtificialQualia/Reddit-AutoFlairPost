@@ -62,4 +62,7 @@ if __name__ == '__main__':
         logger.info('Model loaded')
         
     #Start tagging posts!
-    redditAccount.monitorSubmissions(model)
+    try:
+        redditAccount.monitorSubmissions(model)
+    except Exception as e:
+        logger.error("Praw exception: " + str(e))
