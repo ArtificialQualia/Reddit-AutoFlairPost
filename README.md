@@ -1,3 +1,11 @@
+# NOTE
+
+This code no longer works due to [changes to reddit's search API](https://www.reddit.com/r/changelog/comments/7tus5f/update_to_search_api/).  As of April 2018, they no longer allow the ability to retrieve more than 1000 posts from a subreddit, and have removed some endpoints this code was using.
+
+It would be possible to rewrite this code to use a different source for the posts themselves via an aggregator like pushshift, and then getting current tag data using the reddit API, but as this project has gotten little interest so far I'm not going to rewrite it at this time.
+
+If you are interested in this project, please let me know via the issues page.  If it gets enough interest I will update it.
+
 # What is it?
 Reddit-AutoFlairPost is a utility for Reddit moderators who want a little help tagging new posts.  
 It inspects your existing submissions and flair in order to build a Machine Learning model to automatically tag new posts.  
